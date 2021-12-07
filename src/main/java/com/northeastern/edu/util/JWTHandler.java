@@ -16,7 +16,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 public class JWTHandler {
 	private String SECRET_KEY ="secret";	
 	public JWTHandler() {
-		// TODO Auto-generated constructor stub
+		
 	}
 	public String extractSubject(String token) {
 		return extract(token,Claims::getSubject);

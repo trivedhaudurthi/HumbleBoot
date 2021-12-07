@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.northeastern.edu.ProductRepository;
 import com.northeastern.edu.SellerRepository;
+import com.northeastern.edu.Facade.DBProductFacade;
+import com.northeastern.edu.Facade.DBUserFacade;
 import com.northeastern.edu.models.Product;
 import com.northeastern.edu.models.Seller;
 import com.northeastern.edu.projections.ProductView;
@@ -25,17 +27,17 @@ import com.northeastern.edu.projections.ProductView;
 @RestController
 public class UnauthController {
 	@Autowired
-	private ProductRepository prodRepo;
+	private DBProductFacade productFacade;
 	@Autowired
-	SellerRepository sellerRepo;
+	private DBUserFacade userFacade;
 	public UnauthController() {
-		// TODO Auto-generated constructor stub
+		
 	}
 
 	@Transactional
 	@GetMapping("/info/seller/{id}")
 	public ResponseEntity<Seller> getSeller(@PathVariable int id){
-		Seller seller= sellerRepo.findById(id).orElse(null);
+		Seller seller= userFacade.findSellerById(id).orElse(null);
 		if(seller==null)
 			return ResponseEntity.notFound().build();
 		return ResponseEntity.ok(seller);
@@ -44,7 +46,7 @@ public class UnauthController {
 	@GetMapping("/search/product/{name}")
 	public ResponseEntity<List<ProductView>> searchProduct(@PathVariable String name,@RequestParam int page,@RequestParam String sort){
 		Pageable pageable= PageRequest.of(page-1, 3,Sort.by(sort));
-		List<ProductView> produts= prodRepo.searchByName(name,pageable);
+		List<ProductView> produts= productFacade.searchByName(name,pageable);
 		return ResponseEntity.ok(produts);
 	}
 }

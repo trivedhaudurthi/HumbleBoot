@@ -12,21 +12,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.northeastern.edu.ProductRepository;
+import com.northeastern.edu.Facade.DBProductFacade;
 import com.northeastern.edu.models.Product;
 import com.northeastern.edu.projections.ProductView;
 
 @RestController
 @RequestMapping("/product")
 public class ProductController {
+	// @Autowired
+	// ProductRepository prodRepo;
+
 	@Autowired
-	ProductRepository prodRepo;
+	private DBProductFacade productFacade;
+
 	public ProductController() {
 		// TODO Auto-generated constructor stub
 	}
 	@Transactional
 	@GetMapping("/{id}")
 	public ResponseEntity<ProductView> getProductById(@PathVariable int id){
-		ProductView product= prodRepo.findByIdForLimitedData(id).orElse(null);
+		ProductView product= productFacade.findByIdForLimitedData(id).orElse(null);
 		if(product==null)
 			return ResponseEntity.notFound().build();
 //		System.out.println(product.getName());
@@ -35,7 +40,7 @@ public class ProductController {
 	@Transactional
 	@GetMapping("")
 	public ResponseEntity<List<ProductView>> getAllProducts(){
-		List<ProductView> products= prodRepo.findAllForLimitedData();
+		List<ProductView> products= productFacade.findAllForLimitedData();
 		return ResponseEntity.ok(products);
 	}
 }

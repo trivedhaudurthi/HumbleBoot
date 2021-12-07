@@ -32,7 +32,7 @@ public class Product {
 	@ManyToOne
 	private Seller seller;
 	public Product() {
-		// TODO Auto-generated constructor stub
+		
 	}
 	public int getId() {
 		return id;

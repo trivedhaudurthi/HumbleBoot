@@ -1,5 +1,8 @@
 package com.northeastern.edu.models;
 
+import java.sql.Date;
+import java.sql.Timestamp;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -34,8 +37,13 @@ public class UserOrder {
 	private boolean processed;
 	@NotNull
 	private int quantity;
+
+	@Column(name = "createdTime",columnDefinition="DATETIME(3)")
+	@NotNull
+	private Timestamp createdTime;
+	
 	public UserOrder() {
-		// TODO Auto-generated constructor stub
+		
 	}
 	public int getId() {
 		return id;
@@ -97,5 +105,12 @@ public class UserOrder {
 	public void setProcessed(boolean processed) {
 		this.processed = processed;
 	}
+	public Timestamp getCreatedTime() {
+		return createdTime;
+	}
+	public void setCreatedTime(Timestamp createdTime) {
+		this.createdTime = createdTime;
+	}
+
 
 }

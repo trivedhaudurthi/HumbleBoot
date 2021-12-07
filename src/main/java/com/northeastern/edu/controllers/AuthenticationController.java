@@ -16,13 +16,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.northeastern.edu.PersonRepository;
 import com.northeastern.edu.SellerRepository;
 import com.northeastern.edu.UserRepository;
+import com.northeastern.edu.CustomExceptions.DuplicateUserException;
+import com.northeastern.edu.CustomExceptions.DuplicateUserExceptionFactory;
+import com.northeastern.edu.Facade.DBUserFacade;
 import com.northeastern.edu.models.AuthenticationResponse;
 import com.northeastern.edu.models.LoginForm;
-import com.northeastern.edu.models.Response;
 import com.northeastern.edu.models.Seller;
 import com.northeastern.edu.models.User;
+import com.northeastern.edu.response.Response;
+import com.northeastern.edu.response.ResponseAPI;
+import com.northeastern.edu.response.ResponseBuilder;
 import com.northeastern.edu.util.JWTHandler;
 import com.northeastern.edu.validators.ValidatePersonsWithGroups;
 
@@ -38,27 +44,38 @@ public class AuthenticationController {
 	JWTHandler jwtHandler;
 	@Autowired
 	ValidatePersonsWithGroups validatePersons;
+
+	@Autowired
+	PersonRepository personRepository;
+
+	@Autowired
+	private DBUserFacade userFacade;
+
 	public AuthenticationController() {
 		// TODO Auto-generated constructor stub
 	}
 	@Transactional
 	@PostMapping("/signup/user")
-	public ResponseEntity<Response> signUp(@RequestBody User user) {
+	public ResponseEntity<ResponseAPI> signUp(@RequestBody User user) {
 		validatePersons.validateForCreate(user);
-		if(sellerRepo.findByEmail(user.getEmail())!=null) {
-			return ResponseEntity.badRequest().build();
+		if(userFacade.findUserByEmail(user.getEmail())!=null) {
+			throw DuplicateUserExceptionFactory.getInstance().getObject("User with this email exists");
 		}
-		User savedUser= userRepo.save(user);
-		return ResponseEntity.ok(Response.create("success"));
+		// User savedUser= userRepo.save(user);
+		userFacade.saveUser(user);
+		ResponseBuilder rBuilder = new ResponseBuilder();
+		rBuilder.addMessage("success");
+		rBuilder.addStatus(200);
+		return ResponseEntity.ok(rBuilder.getResponse());
 	}
 	@Transactional
 	@PostMapping("/signup/seller")
 	public ResponseEntity<Response> signup(@RequestBody Seller seller){
 			validatePersons.validateForCreate(seller);
-			if(sellerRepo.findByEmail(seller.getEmail())!=null) {
-				return ResponseEntity.badRequest().build();
+			if(userFacade.findSellerByEmail(seller.getEmail())!=null) {
+				throw DuplicateUserExceptionFactory.getInstance().getObject("User with this email exists");
 			}
-			Seller savedSeller= sellerRepo.save(seller);
+			Seller savedSeller= userFacade.saveSeller(seller);
 //			System.out.println(savedSeller.getProducts());
 			return ResponseEntity.ok(Response.create("success"));		
 	}
@@ -71,7 +88,7 @@ public class AuthenticationController {
 			
 		}
 		catch (BadCredentialsException e) {
-			// TODO: handle exception
+			
 			throw new BadCredentialsException("Incorrect Email Id or password",e);
 		}
 		return ResponseEntity.ok(new AuthenticationResponse(jwtHandler.generateToken(loginform.getEmail())));

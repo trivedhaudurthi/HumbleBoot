@@ -33,5 +33,10 @@ public interface CartProductRepository extends JpaRepository<CartProduct, Intege
 	@Transactional
 	@Modifying
 	@Query ("delete from CartProduct cp where cp.product.id=?1")
-	public void deleteAllByProductId(int id); 
+	public void deleteAllByProductId(int id);
+	@Transactional
+	@Modifying
+	@Query ("delete from CartProduct cp where cp.user.id=?1")
+	public void deleteAllProductsByUserId(int id);
+
 }
