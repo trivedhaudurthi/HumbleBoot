@@ -12,7 +12,7 @@ To create JWTTokens
 Facade Pattern:  done
 To Save the data and retrieve it
 
-Observer:
+Observer& Command:
 Metrics Collector
 Notification Sender
 
