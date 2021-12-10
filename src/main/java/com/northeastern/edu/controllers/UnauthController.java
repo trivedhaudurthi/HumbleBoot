@@ -2,6 +2,7 @@ package com.northeastern.edu.controllers;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,7 +23,12 @@ import com.northeastern.edu.Facade.DBProductFacade;
 import com.northeastern.edu.Facade.DBUserFacade;
 import com.northeastern.edu.models.Product;
 import com.northeastern.edu.models.Seller;
+import com.northeastern.edu.models.User;
 import com.northeastern.edu.projections.ProductView;
+import com.northeastern.edu.response.ResponseAPI;
+import com.northeastern.edu.response.ResponseBuilder;
+import com.northeastern.edu.response.ResponseBuilderAPI;
+import com.northeastern.edu.util.JWTHandler;
 
 
 @RestController
@@ -30,6 +37,10 @@ public class UnauthController {
 	private DBProductFacade productFacade;
 	@Autowired
 	private DBUserFacade userFacade;
+
+	@Autowired
+	private JWTHandler jwtHandler;
+
 	public UnauthController() {
 		
 	}
@@ -48,5 +59,28 @@ public class UnauthController {
 		Pageable pageable= PageRequest.of(page-1, 3,Sort.by(sort));
 		List<ProductView> produts= productFacade.searchByName(name,pageable);
 		return ResponseEntity.ok(produts);
+	}
+	@Transactional
+	@PostMapping("/validate")
+	public ResponseEntity<ResponseAPI> vaildate(HttpServletRequest request,String token){
+		ResponseBuilderAPI rb = new ResponseBuilder();
+		try {
+
+			String username = jwtHandler.extractSubject(token);
+			User user = userFacade.findUserByEmail(username);
+			Seller seller = userFacade.findSellerByEmail(username);
+			if(user==null&&seller==null){
+				throw new RuntimeException("User not found");
+			}
+			String role = seller==null?"user":"seller";
+			rb.addMessage(role);
+			rb.addStatus(200);
+			return ResponseEntity.ok().body(rb.getResponse());
+		} catch (Exception e) {
+			rb.addMessage("Invalid token");
+			rb.addStatus(404);
+			return ResponseEntity.ok().body(rb.getResponse());
+		}
+
 	}
 }
