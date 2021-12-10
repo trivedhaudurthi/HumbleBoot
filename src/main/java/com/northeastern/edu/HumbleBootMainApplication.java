@@ -18,7 +18,7 @@ public class HumbleBootMainApplication {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**");
+				registry.addMapping("/**").allowedHeaders("*").allowedOrigins("*").allowedMethods("GET", "POST","PUT", "DELETE");
 			}
 		};
 	}
