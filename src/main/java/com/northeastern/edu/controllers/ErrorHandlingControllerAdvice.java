@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+
 import com.northeastern.edu.CustomExceptions.DuplicateProductException;
 import com.northeastern.edu.CustomExceptions.DuplicateUserException;
 import com.northeastern.edu.CustomExceptions.PaymentTypeNotFoundException;
@@ -77,5 +80,15 @@ public class ErrorHandlingControllerAdvice {
 		return ResponseEntity.status(403).body(Response.create(e.getMessage()));
 	}
 
-	// io.jsonwebtoken.MalformedJwtException
+	@ExceptionHandler(ExpiredJwtException.class)
+	@ResponseBody
+	ResponseEntity<Response> onJwtNotValid(ExpiredJwtException e){
+		return ResponseEntity.status(403).body(Response.create("Your token is not valid. Please login again"));
+	}
+
+	@ExceptionHandler(MalformedJwtException.class)
+	@ResponseBody
+	ResponseEntity<Response> onJwtMalformed(MalformedJwtException e){
+		return ResponseEntity.status(403).body(Response.create("Your token is not valid. Please login again"));
+	}
 }

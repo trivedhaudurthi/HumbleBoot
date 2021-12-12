@@ -36,6 +36,9 @@ import com.northeastern.edu.CustomExceptions.QuantityNotFoundExceptionFactory;
 import com.northeastern.edu.Facade.DBOrderFacade;
 import com.northeastern.edu.Facade.DBProductFacade;
 import com.northeastern.edu.Facade.DBUserFacade;
+import com.northeastern.edu.Strategy.CreditCardPaymentStrategy;
+import com.northeastern.edu.Strategy.PaymentStrategyAPI;
+import com.northeastern.edu.Strategy.PaypalPaymentStrategy;
 import com.northeastern.edu.models.CartProduct;
 import com.northeastern.edu.models.CartProductRequest;
 import com.northeastern.edu.models.CreditCard;
@@ -214,7 +217,9 @@ public class UserController {
 		double price=processOrder(cart, user);
 
 		cardDetails.setPerson(user);
-		cardDetails.setAmount(price);
+		PaymentStrategyAPI paymentStrategy = new CreditCardPaymentStrategy();
+		double amount  = paymentStrategy.charge(price, user);
+		cardDetails.setAmount(amount);
 
 		orderFacade.recordPayment(cardDetails);
 		productFacade.deleteAllProductsFromCartByUserId(user.getId());
@@ -239,12 +244,16 @@ public class UserController {
 		if(cart.size()==0) {
 			return ResponseEntity.badRequest().body(Response.create("Please add products to cart"));
 		}
+		verifyQuantity(cart);
 		double price=processOrder(cart, user);
 
-		paymentDetails.setToken("gdhvev76283bv63");
-		paymentDetails.setAmount(price);
+		PaymentStrategyAPI paymentStrategy = new PaypalPaymentStrategy();
+		double amount  = paymentStrategy.charge(price, user);
+		paymentDetails.setAmount(amount);
 		
 		orderFacade.recordPayment(paymentDetails);
+		productFacade.deleteAllProductsFromCartByUserId(user.getId());
+		notificationCommand.execute();
 
 		ResponseBuilderAPI rBuilder = new ResponseBuilder();
 

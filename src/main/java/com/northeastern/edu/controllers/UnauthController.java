@@ -62,11 +62,16 @@ public class UnauthController {
 	}
 	@Transactional
 	@PostMapping("/validate")
-	public ResponseEntity<ResponseAPI> vaildate(HttpServletRequest request,String token){
+	public ResponseEntity<ResponseAPI> vaildate(HttpServletRequest request){
 		ResponseBuilderAPI rb = new ResponseBuilder();
 		try {
-
-			String username = jwtHandler.extractSubject(token);
+			String authHeader= request.getHeader("Authorization");
+			String username=null;
+			String token=null;
+			if(authHeader!=null&& authHeader.startsWith("Bearer ")) {
+				token=authHeader.split(" ")[1];
+				username= jwtHandler.extractSubject(authHeader.split(" ")[1]);
+			}
 			User user = userFacade.findUserByEmail(username);
 			Seller seller = userFacade.findSellerByEmail(username);
 			if(user==null&&seller==null){
@@ -78,8 +83,8 @@ public class UnauthController {
 			return ResponseEntity.ok().body(rb.getResponse());
 		} catch (Exception e) {
 			rb.addMessage("Invalid token");
-			rb.addStatus(404);
-			return ResponseEntity.ok().body(rb.getResponse());
+			rb.addStatus(403);
+			return ResponseEntity.status(403).body(rb.getResponse());
 		}
 
 	}
