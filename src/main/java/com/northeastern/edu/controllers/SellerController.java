@@ -86,9 +86,9 @@ public class SellerController {
 		String username=(String)request.getSession().getAttribute("seller");
 //		System.out.println(username);
 		Seller sellerDB= userFacade.findSellerByEmail(username);
+		seller.setEmail(sellerDB.getEmail());
 		validatePerson.validateForUpdate(seller);
 		sellerDB.setAddress(seller.getAddress());
-		sellerDB.setEmail(seller.getEmail());
 		sellerDB.setName(seller.getName());
 		sellerDB.setZipcode(seller.getZipcode());
 		userFacade.saveSeller(sellerDB);

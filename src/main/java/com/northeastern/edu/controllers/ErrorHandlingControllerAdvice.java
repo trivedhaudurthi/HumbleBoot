@@ -22,6 +22,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import com.northeastern.edu.CustomExceptions.DuplicateProductException;
 import com.northeastern.edu.CustomExceptions.DuplicateUserException;
 import com.northeastern.edu.CustomExceptions.PaymentTypeNotFoundException;
+import com.northeastern.edu.CustomExceptions.UserNotFoundException;
 import com.northeastern.edu.response.Response;
 import com.northeastern.edu.validators.ValidationErrorResponse;
 import com.northeastern.edu.validators.Violation;;
@@ -90,5 +91,11 @@ public class ErrorHandlingControllerAdvice {
 	@ResponseBody
 	ResponseEntity<Response> onJwtMalformed(MalformedJwtException e){
 		return ResponseEntity.status(403).body(Response.create("Your token is not valid. Please login again"));
+	}
+
+	@ExceptionHandler(UserNotFoundException.class)
+	@ResponseBody
+	ResponseEntity<Response> onUserNotFound(UserNotFoundException e){
+		return ResponseEntity.status(404).body(Response.create("User is not found"));
 	}
 }

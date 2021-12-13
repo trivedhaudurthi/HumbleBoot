@@ -8,6 +8,7 @@ import com.northeastern.edu.UserRepository;
 import com.northeastern.edu.models.Seller;
 import com.northeastern.edu.models.User;
 import com.northeastern.edu.projections.SellerView;
+import com.northeastern.edu.projections.UserView;
 
 import org.springframework.stereotype.Component;
 
@@ -45,7 +46,7 @@ public class DBUserFacade {
     }
 
     public Optional<SellerView> findSellerByEmailForLimitedData(String email){
-        return sellerRepository.findByEmailForLimitedData(email);
+        return sellerRepository.findByEmail(email, SellerView.class);
     } 
 
     public void deleteSeller(Seller seller){
@@ -58,6 +59,10 @@ public class DBUserFacade {
 
     public Optional<Seller> findSellerById(int id){
         return sellerRepository.findById(id);
+    }
+
+    public Optional<UserView> findUserByEmailForLimitedData(String email){
+        return userRepository.findByEmailForLimitedData(email);
     }
 
 

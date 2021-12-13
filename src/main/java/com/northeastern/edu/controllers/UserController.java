@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +34,7 @@ import com.northeastern.edu.UserRepository;
 import com.northeastern.edu.Command.CommandAPI;
 import com.northeastern.edu.CustomExceptions.PaymentTypeNotFoundException;
 import com.northeastern.edu.CustomExceptions.QuantityNotFoundExceptionFactory;
+import com.northeastern.edu.CustomExceptions.UserNotFoundExceptionFactory;
 import com.northeastern.edu.Facade.DBOrderFacade;
 import com.northeastern.edu.Facade.DBProductFacade;
 import com.northeastern.edu.Facade.DBUserFacade;
@@ -49,10 +51,12 @@ import com.northeastern.edu.models.Product;
 import com.northeastern.edu.models.User;
 import com.northeastern.edu.models.UserOrder;
 import com.northeastern.edu.projections.CartProductView;
+import com.northeastern.edu.projections.UserView;
 import com.northeastern.edu.response.Response;
 import com.northeastern.edu.response.ResponseAPI;
 import com.northeastern.edu.response.ResponseBuilder;
 import com.northeastern.edu.response.ResponseBuilderAPI;
+import com.northeastern.edu.validators.ValidatePersonsWithGroups;
 
 @RestController
 @RequestMapping("/user")
@@ -74,6 +78,8 @@ public class UserController {
 
 	@Autowired
 	private PaymentRepository paymentRepository;
+	@Autowired
+	private ValidatePersonsWithGroups validatePerson;
 
 	private DBOrderFacade orderFacade;
 
@@ -98,6 +104,32 @@ public class UserController {
         this.productFacade = productFacade;
 		this.notificationCommand = command;
     }
+
+	@Transactional
+	@GetMapping("/")
+	public ResponseEntity<UserView> getUser(HttpServletRequest request){
+		String username=(String)request.getSession().getAttribute("user");
+		Optional<UserView>user = userFacade.findUserByEmailForLimitedData(username);
+		if(user.isEmpty()){
+			throw UserNotFoundExceptionFactory.getInstance().getObject("User Not Found", 404);
+		}
+		return ResponseEntity.ok(user.get());
+	}
+
+	@Transactional
+	@PatchMapping("/")
+	public ResponseEntity<Response> updateSeller(@RequestBody User user,HttpServletRequest request){
+		String username=(String)request.getSession().getAttribute("user");
+//		System.out.println(username);
+		User userdb= userFacade.findUserByEmail(username);
+		user.setEmail(userdb.getEmail());
+		validatePerson.validateForUpdate(user);
+		userdb.setAddress(user.getAddress());
+		userdb.setName(user.getName());
+		userdb.setZipcode(user.getZipcode());
+		userFacade.saveUser(userdb);
+		return ResponseEntity.ok(Response.create("success"));
+	}
 
     @Transactional
 	@PostMapping("/cart")

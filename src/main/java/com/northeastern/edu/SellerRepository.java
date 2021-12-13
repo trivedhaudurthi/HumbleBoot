@@ -14,7 +14,8 @@ public interface SellerRepository extends JpaRepository<Seller, Integer> {
 	@Query("select s.id as id, s.name as name, s.email as email, s.zipcode as zipcode, s.address as address, s.products as products from Seller s "
 			+ "where s.id= ?1 ")
 	public Optional<SellerView> findByIdForLimitedData(int id);
-	@Query("select s.id as id, s.name as name, s.email as email, s.zipcode as zipcode, s.address as address, s.products as products from Seller s "
-			+ "where s.email= ?1 ")
-	public Optional<SellerView> findByEmailForLimitedData(String email);
+	// @Query("select s.id as id, s.name as name, s.email as email, s.zipcode as zipcode, s.address as address, s.products as products from Seller s "
+	// 		+ "where s.email= ?1 ")
+	// public Optional<SellerView> findByEmailForLimitedData(String email);
+	public <T> Optional<T> findByEmail(String email,Class<T> type);
 }
