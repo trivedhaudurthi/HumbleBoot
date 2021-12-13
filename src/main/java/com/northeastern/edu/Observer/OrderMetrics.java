@@ -7,6 +7,7 @@ import com.northeastern.edu.MetricRepository;
 import com.northeastern.edu.Facade.DBOrderFacade;
 import com.northeastern.edu.Facade.DBUserFacade;
 import com.northeastern.edu.models.Metric;
+import com.northeastern.edu.models.User;
 import com.northeastern.edu.models.UserOrder;
 
 import org.springframework.data.domain.PageRequest;
@@ -38,7 +39,8 @@ public class OrderMetrics implements ObserverAPI {
     public void send() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username= ((UserDetails) principal).getUsername();
-        int user_id = userFacade.findUserByEmail(username).getId();
+        User user  = userFacade.findUserByEmail(username);
+        int user_id = user.getId();
         Date cur = new Date(System.currentTimeMillis());
         List<Metric> metrics = metricRepository.findByUserIdAndDate(user_id, cur);
         Metric metric = null;
@@ -52,6 +54,13 @@ public class OrderMetrics implements ObserverAPI {
         }
         metric.setFrequency(metric.getFrequency()+1);
         metricRepository.save(metric);
-        System.out.println(metric.getFrequency());
+
+        StringBuffer sb= new StringBuffer();
+        sb.append("\n");
+        sb.append("Metric: \n");
+        sb.append("User ").append(user.getName()).append(" #Id: ").append(user.getId()).append("\n");
+        sb.append("Total Notifications: ").append(metric.getFrequency());
+
+        System.out.println(sb.toString());
     }
 }

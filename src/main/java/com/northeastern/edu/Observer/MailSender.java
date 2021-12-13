@@ -44,24 +44,32 @@ public class MailSender implements ObserverAPI {
     public void send() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username= ((UserDetails) principal).getUsername();
-        int user_id = userFacade.findUserByEmail(username).getId();
+        User user = userFacade.findUserByEmail(username);
+        int user_id = user.getId();
         UserOrder order = orderFacade.getLatestUserOrderByEmail(user_id, PageRequest.of(0,1,Sort.by("createdTime").descending()));
-        System.out.println(order.getCreatedTime());
+        // System.out.println(order.getCreatedTime());
+        Date date=null;
         try {
-            Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(order.getCreatedTime().toString());
+            date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(order.getCreatedTime().toString());
         } catch (ParseException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
         List<UserOrder> allOrders = orderFacade.getLatestUserOrders(order.getCreatedTime(), user_id);
-        System.out.println("Notifications "+ buildSummary(allOrders));
+        StringBuffer sb= new StringBuffer();
+        sb.append("Notification \n");
+        sb.append("User: ").append(user.getName()).append(" #Id: ").append(user.getId()).append("\n");
+        sb.append("Has ordered: \n");
+        sb.append(buildSummary(allOrders));
+        sb.append("On: ").append(date.toString());
+        System.out.println(sb.toString());
     }
 
     public String buildSummary(List<UserOrder> orders){
 
         StringBuffer sb = new StringBuffer();
         for(UserOrder order:orders){
-            sb.append(order.getProductName()).append("       "+order.getQuantity()+"x").append("\n");
+            sb.append("Product Name:").append(order.getProductName()).append("    Quantity: ").append("  "+order.getQuantity()+"x").append("\n");
         }
 
         return sb.toString();
