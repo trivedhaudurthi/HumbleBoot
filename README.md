@@ -1,6 +1,7 @@
 
 ## Info
 Java version : Java 11 <br/>
+Developed with : VSCode <br />
 This project is a `SpringBoot` project. (maven) <br />
 Uses `MySQL` as database
 
