@@ -1,23 +1,39 @@
-Patterns to implement:
+This project is a `SpringBoot` project. (maven)
+Uses `MySQL` as database
 
-Builder Pattern: 
-Build Response Objects with the Builder pattern
+Instructions to run the project:
+-> open application.properties file
+-> change the following properties (see the current fields for reference)
 
-Factory Pattern:
-Create Certain Exceptions and their factories
+spring.datasource.url= {local mysql url}
+spring.datasource.username= {local mysql user}
+spring.datasource.password= {local mysql password}
 
-Singleton Pattern:
-To create JWTTokens
 
-Facade Pattern:  done
-To Save the data and retrieve it
+Commands:
+`mvn clean package -DskipTests`
+This will build a jar file, which can be found in target folder
 
-Observer& Command:
-Metrics Collector
-Notification Sender
+`java -jar ./target/humbleBootMain-0.0.1-SNAPSHOT.jar`
+Excecute the JAR file which was built earlier
 
-Strategy: done
-Payment methods
 
+
+Patterns  implemented:
+
+Builder Pattern
+
+
+Factory Pattern
+
+
+Singleton Pattern
+
+
+Facade Pattern
+
+Observer& Command
+
+Strategy
 
 
